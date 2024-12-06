@@ -45,9 +45,14 @@ bool stuck(int i, int j)
 {
     int k=0;
     int parc[140][140];
+    for (int ii=0; ii<140; ++ii){
+        for (int jj=0; jj<140; ++jj){
+            parc[ii][jj]=0;
+        }
+    }
     while (inMat(i, j, k)){
         ++parc[i][j];;
-        if (parc[i][j]>=5)return true;
+        if (parc[i][j]>=10)return true;
         if (v[i+di[k]][j+dj[k]]=='#'){
             ++k;
             k%=4;
@@ -70,12 +75,16 @@ void p2()
     }
     i=keep_i;
     int cnt=0;
+    char c;
     for (int ii=0; ii<v.size(); ++ii){
         for (int jj=0; jj<v[0].size(); ++jj){
-            if (v[ii][jj]!='.'){
+            if (v[ii][jj]!='#'){
+                c=v[ii][jj];
                 v[ii][jj]='#';
                 cnt+=stuck(i, j);
-                v[ii][jj]='.';
+                //fout<<stuck(i, j)<<" "<<ii<<" - "<<jj<<endl;
+                //system("PAUSE");
+                v[ii][jj]=c;
             }
         }
     }
