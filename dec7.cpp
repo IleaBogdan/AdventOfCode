@@ -1,5 +1,10 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
 using namespace std;
+
 ifstream fin("date.in");
 ofstream fout("date.out");
 
@@ -13,37 +18,39 @@ int getInt(string s, int &i)
     }
     return n;
 }
-vector<int> allInt;
+vector<int> v;
 bool valid(int rez, int i, int num=0)
 {
-    if (rez==num)return 1;
-    if (i>=allInt.size())return 0;
-    return valid(rez, i+1, num*allInt[0]) ||
-    valid(rez, i+1, num+allInt[i]);
+    if (rez==num)return true;
+    if (i<v.size())return valid(rez, i+1, num*v[i]) || valid(rez, i+1, num+v[i]);
+    else return false;
 }
 void p1()
 {
     string s;
-    int tot=0;
-    while (fin>>s){
+    long long tot=0;
+    while (getline(fin, s)){
         int i=0, rez=0;
-        for(;s[i]!=':';++i){
+        for(;s[i]!=':' && i<s.size();++i){
+            //cout<<i<<endl;
             rez*=10;
             rez+=s[i]-'0';
+        }
+        while (s[i]<'0' || s[i]>'9' && i<s.size()){
             ++i;
         }
-        i+=2;
         while (i<s.size()){
-            allInt.push_back(getInt(s, i));
-            cout<<allInt.size()<<endl;
-            ++i;
+            v.push_back(getInt(s, i));
+            while (s[i]<'0' || s[i]>'9' && i<s.size()){
+                ++i;
+            }
         }
         if (valid(rez, 0))tot+=rez;
-        allInt.clear();
     }
     fout<<tot;
 }
 int main()
 {
+    //cout<<"H";
     p1();
 }
