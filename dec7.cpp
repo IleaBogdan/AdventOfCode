@@ -8,6 +8,7 @@ using namespace std;
 ifstream fin("date.in");
 ofstream fout("date.out");
 
+#define int long long
 int getInt(string s, int &i)
 {
     int n=0;
@@ -19,20 +20,20 @@ int getInt(string s, int &i)
     return n;
 }
 vector<int> v;
-bool valid(int rez, int i, int num=0)
+bool valid(int rez, int i)
 {
-    if (rez==num)return true;
-    if (rez>num)return false;
-    if (i<v.size())return valid(rez, i+1, num*v[i]) || valid(rez, i+1, num+v[i]);
-    else return false;
+    if (i==0)
+        return rez==v[0];
+    
+    if (rez%v[i]==0 && valid(rez/v[i], i-1))
+        return true;
+     return valid(rez-v[i], i-1);
 }
 void p1()
 {
     string s;
-    long long tot=0, line=0;
+    long long tot=0;
     while (getline(fin, s)){
-        cout<<line<<endl;
-        ++line;
         int i=0, rez=0;
         for(;s[i]!=':' && i<s.size();++i){
             //cout<<i<<endl;
@@ -42,17 +43,21 @@ void p1()
         while (s[i]<'0' || s[i]>'9' && i<s.size()){
             ++i;
         }
+        cout<<rez<<endl;
         while (i<s.size()){
             v.push_back(getInt(s, i));
+            cout<<v.back()<<" ";
             while (s[i]<'0' || s[i]>'9' && i<s.size()){
                 ++i;
             }
         }
-        if (valid(rez, 0))tot+=rez;
+        cout<<endl;
+        if (valid(rez, v.size()-1))tot+=rez;
+        v.clear();
     }
     fout<<tot;
 }
-int main()
+signed main()
 {
     //cout<<"H";
     p1();
