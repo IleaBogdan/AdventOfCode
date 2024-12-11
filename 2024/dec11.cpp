@@ -22,7 +22,7 @@ int get_size(long long n)
 int iterate(int iterations)
 {
     for (int i=1; i<=iterations; ++i){
-        cout<<i<<endl;
+        //cout<<i<<endl;
         nv.clear();
         for (auto it:v){
             if (!it) nv.push_back(1);
@@ -81,6 +81,7 @@ void p2()
     /// ok deci solutia ii un dp pe numere individuale si faci ca in pyhon cu un cach pe a memora function callurile si dupa dute plangi ca abea 
     /// amu tio venit ideea
     iterate(40);
+    cout<<"40 allready\n";
     cout<<"done";
     save=v;
     v.clear();
@@ -88,14 +89,48 @@ void p2()
         v.clear();
         v.push_back(s[i]);
         tot+=iterate(35);
+        cout<<i+1<<" done\n";
+    }
+    fout<<tot;
+}
+map<pair<int, int>, int> cache;
+long long calc(int stone, int iter)
+{
+    if (!iter)return 1;
+    if (cache[{stone, iter}])return cache[{stone, iter}];
+    if (!stone)return cache[{stone, iter}]]=calc(1, iter-1)
+    string s=to_string(stone);
+    if (s.size()%2)return cache[{stone, iter}]]=calc(stone*2024, iter-1);
+    long long num1=0, num2=0;
+    for (int j=0; j<s.size()/2; ++j){
+        num1*=10;
+        num1+=s[j]-'0';
+    }
+    for (int j=s.size()/2; j<s.size(); ++j){
+        num2*=10;
+        num2+=s[j]-'0';
+    }
+    return cache[{stone, iter}]=(calc(num1, iter-1)+calc(num2, iter-1));
+}
+void p2eficient()
+{
+    string s, cs;
+    while (getline(fin, cs)){
+        s+=cs;
+    }
+    stringstream sin(s);
+    long long x, tot=0;
+    while (sin>>x){
+        tot+=calc(x, 75);
     }
     fout<<tot;
 }
 int main()
 {
-    ios::sync_with_stdio(0);
+    /*ios::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
+    */
     //p1();
     p2();
 }
