@@ -1,13 +1,14 @@
 #include <bits/stdc++.h>
+#include <unordered_map>
 
 using namespace std;
 
 ifstream fin("date.in");
 ofstream fout("date.out");
 
-vector<long long> nv, v;
+vector<unsigned long long> nv, v;
 deque<int> split;
-int get_size(long long n)
+int get_size(unsigned long long n)
 {
     int s=0;
     while (n>9){
@@ -32,7 +33,7 @@ int iterate(int iterations)
                 if (sz%2){
                     nv.push_back(it*2024);
                 } else {
-                    long long num1=0, num2=0;
+                    unsigned long long num1=0, num2=0;
                     for (int j=0; j<sz/2; ++j){
                         num1*=10;
                         num1+=split[j];
@@ -57,14 +58,14 @@ void p1()
         s+=cs;
     }
     stringstream sin(s);
-    long long x;
+    unsigned long long x;
     while (sin>>x){
         v.push_back(x);
     }
 
     fout<<iterate(25);
 }
-vector<long long>save, nsave;
+vector<unsigned long long>save, nsave;
 void p2()
 {
     string s, cs;
@@ -72,7 +73,7 @@ void p2()
         s+=cs;
     }
     stringstream sin(s);
-    long long x, tot=0, cnt=1;
+    unsigned long long x, tot=0, cnt=1;
     while (sin>>x){
         v.push_back(x);
     }
@@ -93,24 +94,30 @@ void p2()
     }
     fout<<tot;
 }
-map<pair<int, int>, int> cache;
-long long calc(int stone, int iter)
+map<pair<unsigned long long, int>, int> cache;
+unsigned long long calc(unsigned long long stone, int iter)
 {
     if (!iter)return 1;
-    if (cache[{stone, iter}])return cache[{stone, iter}];
-    if (!stone)return cache[{stone, iter}]]=calc(1, iter-1)
-    string s=to_string(stone);
-    if (s.size()%2)return cache[{stone, iter}]]=calc(stone*2024, iter-1);
-    long long num1=0, num2=0;
-    for (int j=0; j<s.size()/2; ++j){
-        num1*=10;
-        num1+=s[j]-'0';
+    if (!cache.count({stone, iter})){
+        if (stone==0)cache[{stone, iter}]=calc(1, iter-1);
+        else {
+            string s=to_string(stone);
+            if (s.size()%2)cache[{stone, iter}]=calc(stone*2024, iter-1);
+            else {
+                unsigned long long num1=0, num2=0;
+                for (int j=0; j<s.size()/2; ++j){
+                    num1*=10;
+                    num1+=s[j]-'0';
+                }
+                for (int j=s.size()/2; j<s.size(); ++j){
+                    num2*=10;
+                    num2+=s[j]-'0';
+                }
+                cache[{stone, iter}]=(calc(num1, iter-1)+calc(num2, iter-1));
+            }
+        }
     }
-    for (int j=s.size()/2; j<s.size(); ++j){
-        num2*=10;
-        num2+=s[j]-'0';
-    }
-    return cache[{stone, iter}]=(calc(num1, iter-1)+calc(num2, iter-1));
+    return cache[{stone, iter}];
 }
 void p2eficient()
 {
@@ -119,9 +126,43 @@ void p2eficient()
         s+=cs;
     }
     stringstream sin(s);
-    long long x, tot=0;
+    unsigned long long x, tot=0;
     while (sin>>x){
         tot+=calc(x, 75);
+    }
+    fout<<tot;
+}
+unordered_map<unsigned long long, unsigned long long> mp1, mp2;
+void p2Cu2MapuriCaVectori()
+{
+    string s, cs;
+    while (getline(fin, cs)){
+        s+=cs;
+    }
+    stringstream sin(s);
+    unsigned long long x, tot=0;
+    while (sin>>x){
+        ++mp1[x];
+    }
+    for (int i=0; i<75; ++i){
+        mp2.clear();
+        for (auto it:mp1){
+            if (!it.first){
+                mp2[1]+=it.second;
+            } else if (to_string(it.first).size()%2){
+                mp2[it.first*2024]+=it.second;
+            } else {
+                cs=to_string(it.first);
+                unsigned long long num1=stoull(cs.substr(0, cs.size()/2)), 
+                num2=stoul(cs.substr(cs.size()/2, cs.size()/2));
+                mp2[num1]+=it.second;
+                mp2[num2]+=it.second;
+            }
+        }
+        mp1=mp2;
+    }
+    for (auto it:mp1){
+        tot+=it.second;
     }
     fout<<tot;
 }
@@ -132,5 +173,6 @@ int main()
     cout.tie(0);
     */
     //p1();
-    p2();
+    //p2eficient();
+    p2Cu2MapuriCaVectori();
 }
