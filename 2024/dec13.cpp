@@ -66,7 +66,7 @@ void p1()
 void p2()
 {
     string s;
-    unsigned long long tot=0;
+    unsigned long long tot=0, offset=10000000000000;
     while (getline(fin, s)){
         string a, b;
         a=s;
@@ -77,23 +77,18 @@ void p2()
         get_prize(xa, ya, a);
         get_prize(xb, yb, b);
         get_prize(px, py, s);
+        px+=offset, py+=offset;
         minim=LLONG_MAX;
 
         /// cod:
-        int kpi=0, kpj=0;
-        mA=min(px/xa, py/ya)+1;
-        mB=min(px/xb, py/yb)+1;
-        for (int i=0; i<=mA; ++i){
-            if ((px-xa*i)%xb==0 && (py-ya*i)%yb==0 && (py-ya*i)%yb==(px-xa*i)%xb){
-                if (minim>1ULL*(i*3+(py-ya*i)/yb)){
-                    minim=1ULL*(i*3+(py-ya*i)/yb);
-                    //cout<<kpi<<" - "<<kpj<<endl;
-                    kpi=i, kpj=(py-ya*i)/yb;
-                }
-            }
+        unsigned long long bb=(py*xa-px*ya)/((-ya)*xb+yb*xa);
+        unsigned long long aa=(px-xb*bb)/xa;
+        if(aa*xa+bb*xb==px && aa*ya+bb*yb==py){
+            tot+=aa*3+bb;
         }
-        tot+=(minim!=LLONG_MAX ? minim : 0);
-        cout<<minim<<endl;
+
+        //tot+=(minim!=LLONG_MAX ? minim : 0);
+        //cout<<minim<<endl;
     }
     fout<<tot;
 }
