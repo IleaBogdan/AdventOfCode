@@ -2,6 +2,7 @@
 
 using namespace std;
 
+//#define 1ULL 1LL
 ifstream fin("date.in");
 ofstream fout("date.out");
 void get_prize(long long &x, long long &y, const string &s)
@@ -32,7 +33,7 @@ void rizzlerAproved(int lima=100, int limb=100)
     for (int i=0; i<=lima; ++i){
         for (int j=0; j<=limb; ++j){
             if (i*xa+j*xb==px && i*ya+j*yb==py){
-                minim=min(minim, (i*3+j)*1ULL);
+                minim=min(minim, (i*3+j)*1LL);
             }
         }
     }
@@ -51,8 +52,8 @@ void p1()
         get_prize(xa, ya, a);
         get_prize(xb, yb, b);
         get_prize(px, py, s);
-        mA=min(100*1ULL, min(px/xa, py/ya)+1);
-        mB=min(100*1ULL, min(px/xb, py/yb)+1);
+        //mA=min(100, min(px/xa, py/ya)+1);
+        //B=min(100, min(px/xb, py/yb)+1);
         //cout<<mA<<" - "<<mB<<endl;
         //generate_minim();
         minim=LLONG_MAX;
@@ -80,7 +81,7 @@ void p2()
         py += 10000000000000;
         long long b = (py*xa - px*ya)/((-ya)*xb + yb*xa);
         long long a = (px-xb*b)/xa;
-        if(a*xa + b*xb == 0x && a*ya + b*yb == py)
+        if(a*xa + b*xb == px && a*ya + b*yb == py)
             tot += a*3 + b;
     }
     fout<<tot;
