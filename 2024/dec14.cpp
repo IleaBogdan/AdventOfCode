@@ -11,7 +11,7 @@ struct XoY{
     int xP, yP;
     int xV, yV;
 };
-vector<XoY> a, a2;
+vector<XoY> a;
 int mat[111][111], n, m;
 const int iter=100;
 bool inMat(int i, int j)
@@ -68,49 +68,41 @@ void p1()
     tot*=s1;
     fout<<tot;
 }
-double distance(int x1, int y1, int x2, int y2) {
-    return sqrt((x2-x1)*(x2-x1)+
-                (y2-y1)*(y2-y1));
-}
-double get_mean_dist() {
-    double sum = 0.0;
-    int count = 0;
-    for (int i=0; i<a2.size(); ++i) {
-        for (int j=i+1; j<a2.size(); ++j) {
-            sum+=distance(a2[i].xP, a2[i].yP, 
-                          a2[j].xP, a2[j].yP);
-            ++count;
-        }
-    }
-    return sum/double(count);
-}
-int pMOD(int a, int b)
-{
-    return (a%b<0 ? a+b : a)%b;
-}
+
 void p2()
 {
     n=101, m=103;
     XoY tmp;
     while (scanf("p=%d,%d v=%d,%d\n", &tmp.xP, &tmp.yP, &tmp.xV, &tmp.yV) != EOF){
         a.push_back(tmp);
-        a2.push_back(tmp);
         //printf("%d %d %d %d\n", tmp.xP, tmp.yP, tmp.xV, tmp.yV);
     }
-    int sec=0;
-    double d1, d2=get_mean_dist();
-    do {
-        //fout<<d1<<" "<<d2<<endl;
-        d1=d2;
-        //cout<<sec<<endl;
-        ++sec;
-        for(int i=0; i<a.size(); ++i){
-            a2[i].xP=pMOD((a[i].xP + a[i].xV * sec), n);
-            a2[i].yP=pMOD((a[i].yP + a[i].yV * sec), m);
+    int minSec=0, minim=INT_MAX;
+    for (int sec=0; sec<=n*m; ++sec){
+        int cadLimX=n/2, cadLimY=m/2;
+        int cad[4]={0, 0, 0, 0};
+        for (int i=0; i<a.size(); ++i){
+            int x=(a[i].xP+a[i].xV*sec+n*sec)%n, 
+                y=(a[i].yP+a[i].yV*sec+m*sec)%m;
+            if (x<=cadLimX){
+                if (y<=cadLimY){
+                    ++cad[0];
+                } else {
+                    ++cad[1];
+                }
+            } else if (y<=cadLimY){
+                ++cad[2];
+            } else {
+                ++cad[3];
+            }
         }
-        d2=get_mean_dist();
-    } while (d2>d1*0.6);
-    fout<<sec;
+        int prod=cad[0]*cad[1]*cad[2]*cad[3];
+        if (minim>prod){
+            minim=prod;
+            minSec=sec;
+        }
+    }
+    fout<<minSec;
 }
 int main()
 {
