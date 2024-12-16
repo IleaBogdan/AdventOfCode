@@ -140,6 +140,56 @@ void revdij(int i, int j){
         }
     }
 }
+int backtrackDijkstra(int i, int j, int dir, int dij[][150]=dij1)
+{
+    map<pair<int, int>, set<pair<int, int>>> paths;
+    dij[i][j]=0;
+    set<pair<pair<int, int>, pair<int, int>>> d;
+    d.insert({{0, dir}, {i, j}});
+    while (!d.empty()){
+        i=d.begin()->second.first;
+        j=d.begin()->second.second;
+        dir=d.begin()->first.second;
+        int tmp=d.begin()->first.first;
+        cout<<i<<" - "<<j<<endl;
+        d.erase(d.begin());
+        if (tmp>dij[i][j])continue;
+        for (int k=0; k<3; ++k){
+            int kk=(dir+4+sc[k])%4;
+            int pi=i+di[kk], pj=j+dj[kk];
+            if (inmat(pi, pj)){
+                if (v[pi][pj]!='#'){
+                    if (dij[pi][pj]>dij[i][j]+sum[k]){
+                        dij[pi][pj]=dij[i][j]+sum[k];
+                        d.insert({{dij[pi][pj], kk}, {pi, pj}});
+                        paths[{pi, pj}].clear();
+                        paths[{pi, pj}].insert({i, j});
+                    }
+                    if (dij[pi][pj]==dij[i][j]+sum[k]){
+                        paths[{pi, pj}].insert({i, j});
+                    }
+                }
+            }
+        }
+    }
+    set<pair<int, int>>sol;
+    queue<pair<int, int>>q;
+    for (auto it:paths[{ei, ej}]){
+        q.push(it);
+    }
+    while (!q.empty()){
+        cout<<i<<" - "<<j<<endl;
+        i=q.front().first;
+        j=q.front().second;
+        q.pop();
+        sol.insert({i, j});
+        for (auto it:paths[{i, j}]){
+            q.push(it);
+        }
+    }
+
+    return sol.size()+1;
+}
 
 void p2(){
     read();
@@ -148,9 +198,11 @@ void p2(){
     find(si, sj, ei, ej);
     //reset(dij1);
     //fout<<dijkstra2(si, sj, 1);
-    dijkstra(si, sj, 1);
-    revdij(ei, ej);
-    fout<<cc.size();    
+    //dijkstra(si, sj, 1);
+    //revdij(ei, ej);
+    //fout<<cc.size();    
+    reset(dij1);
+    fout<<backtrackDijkstra(si, sj, 1);
 }
 int main()
 {
