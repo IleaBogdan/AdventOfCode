@@ -49,13 +49,22 @@ void reset(){
         }
     }
 }
-void p1(){
+int smallestPath(int si, int sj, int ei, int ej)
+{
+    int mi=INT_MAX;
+    dijkstra(si, sj, 1);
+    return dij[ei][ej];
+}
+void read()
+{
     string s;
     while (fin>>s){
         v.push_back(s);
     }
     n=v.size(), m=v[0].size();
-    int si, sj, ei, ej;
+}
+void find(int si, int sj, int ei, int ej)
+{
     for (int i=0; i<n; ++i){
         for (int j=0; j<m; ++j){
             if (v[i][j]=='S'){
@@ -67,9 +76,12 @@ void p1(){
             dij[i][j]=INT_MAX;
         }
     }
-    int mi=INT_MAX;
-    dijkstra(si, sj, 1);
-    fout<<dij[ei][ej];
+}
+void p1(){
+    read();
+    int si, sj, ei, ej;
+    find(si, sj, ei, ej);
+    fout<<smallestPath(si, sj, ei, ej);
 }
 int main()
 {
