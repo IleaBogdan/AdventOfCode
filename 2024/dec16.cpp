@@ -87,10 +87,12 @@ void p1(){
 }
 set<pair<int,int>>sp, tmp;
 int ei, ej, sm;
-void backtrack(int i, int j, int count=0)
+void backtrack(int i, int j, int dir, int count=0)
 {
+    tmp.insert({i, j});
+    //cout<<i<<" - "<<j<<endl;
     if (i==ei && j==ej && sm==count){
-        cout<<"here";
+        //cout<<"here";
         for (auto it:tmp){
             sp.insert(it);
         }
@@ -99,14 +101,15 @@ void backtrack(int i, int j, int count=0)
     if (ei==i && ej==j)return;
     if (sm<count)return;
     
+    cout<<i<<" - "<<j<<endl;
     //cod de backtracking
     for (int kk=0; kk<3; ++kk){
-        int k=(4+sc[kk])%4;
+        int k=(dir+4+sc[kk])%4;
         int pi=i+di[k], pj=j+dj[k];
         if (inmat(pi, pj)){
             if (v[pi][pj]!='#' && !tmp.count({pi, pj})){
                 tmp.insert({pi, pj});
-                backtrack(pi, pj, count+sum[kk]);
+                backtrack(pi, pj, k, count+sum[kk]);
                 tmp.erase({pi, pj});
             }
         }
@@ -119,7 +122,7 @@ void p2(){
     sm=smallestPath(si, sj, ei, ej);
     cout<<sm<<endl;
     //reset();
-    backtrack(ei, ej);
+    backtrack(si, 1, sj);
     fout<<sp.size();
 }
 int main()
