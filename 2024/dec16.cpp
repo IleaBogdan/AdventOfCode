@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <climits>
 
 using namespace std;
 
@@ -63,7 +64,7 @@ void read()
     }
     n=v.size(), m=v[0].size();
 }
-void find(int si, int sj, int ei, int ej)
+void find(int &si, int &sj, int &ei, int &ej)
 {
     for (int i=0; i<n; ++i){
         for (int j=0; j<m; ++j){
