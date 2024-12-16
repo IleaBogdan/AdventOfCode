@@ -128,13 +128,29 @@ int dijkstra2(int i, int j, int dir, int dij[][150]=dij1)
     }
     return paths[{ei, ej}].size();
 }
+set<pair<int, int>> cc;
+void revdij(int i, int j){
+    cout<<i<<" - "<<j<<endl;
+    for (int k=0; k<4; ++k){
+        int pi=i+di[k], pj=j+dj[k];
+        if (inmat(pi, pj)) if (v[pi][pj]!='#')
+        if (dij1[pi][pj]<=dij1[i][j] && !cc.count({pi, pj})){
+            cc.insert({pi, pj});
+            revdij(pi, pj);
+        }
+    }
+}
+
 void p2(){
     read();
     cout<<"fuck\n";
     int si, sj, sm;
     find(si, sj, ei, ej);
-    reset(dij1);
-    fout<<dijkstra2(si, sj, 1);    
+    //reset(dij1);
+    //fout<<dijkstra2(si, sj, 1);
+    dijkstra(si, sj, 1);
+    revdij(ei, ej);
+    fout<<cc.size();    
 }
 int main()
 {
