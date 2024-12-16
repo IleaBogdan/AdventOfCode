@@ -5,6 +5,8 @@
 #include <vector>
 #include <climits>
 #include <queue>
+#include <map>
+
 
 using namespace std;
 
@@ -12,12 +14,14 @@ ifstream fin("date.in");
 ofstream fout("date.out");
 
 vector<string> v;
-int dij[1001][1001], n, m, di[]={1, 0, -1, 0}, dj[]={0, 1, 0, -1};
+int dij1[150][150], dij2[150][150], n, m, di[]={1, 0, -1, 0}, dj[]={0, 1, 0, -1};
 int sc[]={-1, 0, 1}, sum[]={1001,1,1001};
 bool inmat(int i, int j){
     return i>=0 && j>=0 && i<n && j<m;
 }
-void dijkstra(int i, int j, int dir)
+
+//set<pair<int, int>> st;
+void dijkstra(int i, int j, int dir, int dij[][150]=dij1)
 {
     set<pair<pair<int, int>, pair<int,int>>> st;
     st.insert({{0, dir}, {i, j}});
@@ -44,7 +48,7 @@ void dijkstra(int i, int j, int dir)
         }
     }
 }
-void reset(){
+void reset(int dij[][150]){
     for (int i=0; i<n; ++i){
         for (int j=0; j<m; ++j){
             dij[i][j]=INT_MAX;
@@ -54,8 +58,9 @@ void reset(){
 int smallestPath(int si, int sj, int ei, int ej)
 {
     int mi=INT_MAX;
+    reset(dij1);
     dijkstra(si, sj, 1);
-    return dij[ei][ej];
+    return dij1[ei][ej];
 }
 void read()
 {
@@ -75,7 +80,7 @@ void find(int &si, int &sj, int &ei, int &ej)
             if (v[i][j]=='E'){
                 ei=i, ej=j;
             }
-            dij[i][j]=INT_MAX;
+            //dij[i][j]=INT_MAX;
         }
     }
 }
@@ -85,45 +90,51 @@ void p1(){
     find(si, sj, ei, ej);
     fout<<smallestPath(si, sj, ei, ej);
 }
-set<pair<int,int>>sp, tmp;
-int ei, ej, sm;
-void backtrack(int i, int j, int dir, int count=0)
+int ei, ej;
+int dijkstra2(int i, int j, int dir, int dij[][150]=dij1)
 {
-    tmp.insert({i, j});
-    //cout<<i<<" - "<<j<<endl;
-    if (i==ei && j==ej && sm==count){
-        //cout<<"here";
-        for (auto it:tmp){
-            sp.insert(it);
-        }
-        return;
-    }
-    if (ei==i && ej==j)return;
-    if (sm<count)return;
-    
-    cout<<i<<" - "<<j<<endl;
-    //cod de backtracking
-    for (int kk=0; kk<3; ++kk){
-        int k=(dir+4+sc[kk])%4;
-        int pi=i+di[k], pj=j+dj[k];
-        if (inmat(pi, pj)){
-            if (v[pi][pj]!='#' && !tmp.count({pi, pj})){
-                tmp.insert({pi, pj});
-                backtrack(pi, pj, k, count+sum[kk]);
-                tmp.erase({pi, pj});
+    map<pair<int, int>,  set<pair<int, int>>> paths;
+    paths[{i, j}].insert({i, j});
+    set<pair<pair<int, int>, pair<int,int>>> st;
+    st.insert({{0, dir}, {i, j}});
+    dij[i][j]=0;
+    while (!st.empty()){
+        //cout<<i<<" - "<<j<<endl;
+        i=st.begin()->second.first;
+        j=st.begin()->second.second;
+        paths[{i, j}].insert({i, j});
+        dir=st.begin()->first.second;
+        int tmp=st.begin()->first.first;
+        st.erase(st.begin());
+        if (tmp>dij[i][j])continue;
+        for (int k=0; k<3; ++k){
+            int kk=(dir+4+sc[k])%4;
+            int pi=i+di[kk], pj=j+dj[kk];
+            if (inmat(pi, pj)){
+                if (v[pi][pj]!='#'){
+                    if (dij[pi][pj]>dij[i][j]+sum[k]){
+                        dij[pi][pj]=dij[i][j]+sum[k];
+                        st.insert({{dij[pi][pj], kk}, {pi, pj}});
+                        paths[{pi, pj}].clear();
+                    } 
+                    if (dij[pi][pj]==dij[i][j]+sum[k]){
+                        for (auto it:paths[{i, j}]){
+                            paths[{pi, pj}].insert(it);
+                        }
+                    }
+                }
             }
         }
     }
+    return paths[{ei, ej}].size();
 }
 void p2(){
     read();
-    int si, sj;
+    cout<<"fuck\n";
+    int si, sj, sm;
     find(si, sj, ei, ej);
-    sm=smallestPath(si, sj, ei, ej);
-    cout<<sm<<endl;
-    //reset();
-    backtrack(si, 1, sj);
-    fout<<sp.size();
+    reset(dij1);
+    fout<<dijkstra2(si, sj, 1);    
 }
 int main()
 {
