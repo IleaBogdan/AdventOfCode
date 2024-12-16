@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <climits>
+#include <queue>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ void dijkstra(int i, int j, int dir)
     st.insert({{0, dir}, {i, j}});
     dij[i][j]=0;
     while (!st.empty()){
-        cout<<i<<" - "<<j<<endl;
+        //cout<<i<<" - "<<j<<endl;
         i=st.begin()->second.first;
         j=st.begin()->second.second;
         dir=st.begin()->first.second;
@@ -84,7 +85,36 @@ void p1(){
     find(si, sj, ei, ej);
     fout<<smallestPath(si, sj, ei, ej);
 }
+set<pair<int,int>>sp;
+void revdijkstra(int i, int j)
+{
+    queue<pair<int, int>> q;
+    q.push({i, j});
+    sp.insert({i, j});
+    while (!q.empty()){
+        i=q.front().first;
+        j=q.front().second;
+        q.pop();
+        for(int k=0; k<4; ++k){
+            int pi=i+di[k], pj=j+dj[k];
+            if (dij[pi][pj]<dij[i][j]){
+                q.push({pi, pj});
+                sp.insert({pi, pj});
+            }
+        }
+    }
+}
+void p2(){
+    read();
+    int si, sj, ei, ej;
+    find(si, sj, ei, ej);
+    int sm=smallestPath(si, sj, ei, ej);
+    cout<<sm<<endl;
+    revdijkstra(ei, ej);
+    fout<<sp.size();
+}
 int main()
 {
-    p1();
+    //p1();
+    p2();
 }
