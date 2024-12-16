@@ -85,32 +85,41 @@ void p1(){
     find(si, sj, ei, ej);
     fout<<smallestPath(si, sj, ei, ej);
 }
-set<pair<int,int>>sp;
-void revdijkstra(int i, int j)
+set<pair<int,int>>sp, tmp;
+int ei, ej, sm;
+void backtrack(int i, int j, int count=0)
 {
-    queue<pair<int, int>> q;
-    q.push({i, j});
-    sp.insert({i, j});
-    while (!q.empty()){
-        i=q.front().first;
-        j=q.front().second;
-        q.pop();
-        for(int k=0; k<4; ++k){
-            int pi=i+di[k], pj=j+dj[k];
-            if (dij[pi][pj]<dij[i][j]){
-                q.push({pi, pj});
-                sp.insert({pi, pj});
+    if (i==ei && j==ej && sm==count){
+        cout<<"here";
+        for (auto it:tmp){
+            sp.insert(it);
+        }
+        return;
+    }
+    if (ei==i && ej==j)return;
+    if (sm<count)return;
+    
+    //cod de backtracking
+    for (int kk=0; kk<3; ++kk){
+        int k=(4+sc[kk])%4;
+        int pi=i+di[k], pj=j+dj[k];
+        if (inmat(pi, pj)){
+            if (v[pi][pj]!='#' && !tmp.count({pi, pj})){
+                tmp.insert({pi, pj});
+                backtrack(pi, pj, count+sum[kk]);
+                tmp.erase({pi, pj});
             }
         }
     }
 }
 void p2(){
     read();
-    int si, sj, ei, ej;
+    int si, sj;
     find(si, sj, ei, ej);
-    int sm=smallestPath(si, sj, ei, ej);
+    sm=smallestPath(si, sj, ei, ej);
     cout<<sm<<endl;
-    revdijkstra(ei, ej);
+    //reset();
+    backtrack(ei, ej);
     fout<<sp.size();
 }
 int main()
