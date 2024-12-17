@@ -11,7 +11,7 @@ ofstream fout("date.out");
 #define fin cin
 
 
-int A, B, C, i;
+long long A, B, C, i;
 int dv(int val, int p2)
 {
     return val/(1<<p2);
@@ -100,9 +100,7 @@ void registerOperation(int opr, int ope)
         break;
     }
 }
-void p1()
-{
-    int opr, ope;
+void read(){
     scanf("Register A: %d\n", &A);
     scanf("Register B: %d\n", &B);
     scanf("Register C: %d\n", &C);
@@ -121,6 +119,11 @@ void p1()
         if (c==',')continue;
         v.push_back(c-'0');
     }
+}
+void p1()
+{
+    int opr, ope;
+    read();
     for (i=0; i<v.size(); ++i){
         //cout<<i<<endl;
         opr=v[i++];
@@ -128,9 +131,28 @@ void p1()
         registerOperation(opr, ope);
     }
 }
+void p2()
+{
+    read();
+    // reverse part 1 shit 
+    /*
+    Program: 2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0
+
+    2,4 -> b=a%8
+    1,5 -> b=b^5
+    7,5 -> c=a/(1>>b)
+    4,5 -> b=b^c
+    0,3 -> a=a/(1>>3)
+    1,6 -> b=b^6
+    5,5 -> fout<<b%8
+
+    3,0 -> if (a!=0) repeat
+    */
+}
 int main()
 {
     freopen("date.in", "r", stdin);
-    p1();
+    //p1();
+    p2();
     return 0;
 }
