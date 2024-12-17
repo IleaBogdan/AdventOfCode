@@ -6,7 +6,7 @@
 #include <climits>
 #include <queue>
 #include <map>
-
+#include <cstring>
 
 using namespace std;
 
@@ -15,7 +15,7 @@ ofstream fout("date.out");
 
 vector<string> v;
 int dij1[150][150], dij2[150][150], n, m, di[]={1, 0, -1, 0}, dj[]={0, 1, 0, -1};
-int sc[]={-1, 0, 1}, sum[]={1001,1,1001};
+int sc[]={-1, 0, 1}, sum[]={1000,1,1000};
 bool inmat(int i, int j){
     return i>=0 && j>=0 && i<n && j<m;
 }
@@ -90,119 +90,77 @@ void p1(){
     find(si, sj, ei, ej);
     fout<<smallestPath(si, sj, ei, ej);
 }
-int ei, ej;
-int dijkstra2(int i, int j, int dir, int dij[][150]=dij1)
-{
-    map<pair<int, int>,  set<pair<int, int>>> paths;
-    paths[{i, j}].insert({i, j});
-    set<pair<pair<int, int>, pair<int,int>>> st;
-    st.insert({{0, dir}, {i, j}});
-    dij[i][j]=0;
-    while (!st.empty()){
-        //cout<<i<<" - "<<j<<endl;
-        i=st.begin()->second.first;
-        j=st.begin()->second.second;
-        paths[{i, j}].insert({i, j});
-        dir=st.begin()->first.second;
-        int tmp=st.begin()->first.first;
-        st.erase(st.begin());
-        if (tmp>dij[i][j])continue;
-        for (int k=0; k<3; ++k){
-            int kk=(dir+4+sc[k])%4;
-            int pi=i+di[kk], pj=j+dj[kk];
-            if (inmat(pi, pj)){
-                if (v[pi][pj]!='#'){
-                    if (dij[pi][pj]>dij[i][j]+sum[k]){
-                        dij[pi][pj]=dij[i][j]+sum[k];
-                        st.insert({{dij[pi][pj], kk}, {pi, pj}});
-                        paths[{pi, pj}].clear();
-                    } 
-                    if (dij[pi][pj]==dij[i][j]+sum[k]){
-                        for (auto it:paths[{i, j}]){
-                            paths[{pi, pj}].insert(it);
-                        }
-                    }
-                }
+const int BIG_N=1024;
+const int MAX=1<<30;
+
+char tab[BIG_N][BIG_N], b[BIG_N][BIG_N] = {0};
+int costs[BIG_N][BIG_N][4],sx,sy;
+
+int turns[4][2] = { {-1,0}, {0,-1}, {1,0}, {0,1} };
+int turn_cost[4] = {0 , 1000, 2000, 1000};
+
+void count_path(int x, int y, int turn, int cost){
+    for (int i = 0; i < 4; i++) {
+        if (i == 2) continue;
+
+        int tx_x = turns[(turn + i) % 4][0];
+        int tx_y = turns[(turn + i) % 4][1];
+
+        if(tab[y + tx_y][x + tx_x] == '.'){
+            int new_cost = cost + 1 + turn_cost[i];
+            if (new_cost < costs[y + tx_y][x + tx_x][(turn + i) % 4]) {
+                costs[y + tx_y][x + tx_x][(turn + i) % 4] = new_cost;
+                count_path(x + tx_x, y + tx_y, (turn + i) % 4, new_cost);
             }
         }
     }
-    return paths[{ei, ej}].size();
 }
-set<pair<int, int>> cc;
-void revdij(int i, int j){
-    cout<<i<<" - "<<j<<endl;
-    for (int k=0; k<4; ++k){
-        int pi=i+di[k], pj=j+dj[k];
-        if (inmat(pi, pj)) if (v[pi][pj]!='#')
-        if (dij1[pi][pj]<=dij1[i][j] && !cc.count({pi, pj})){
-            cc.insert({pi, pj});
-            revdij(pi, pj);
+
+void resolve_path(int ex, int ey, int vec){
+    b[ey][ex]=1;
+    if(ex == sx && ey == sy) return;
+
+    int ex2,ey2, min = MAX;
+
+    for(int i=0; i<4; i++)
+        if(costs[ey][ex][i] < min)
+            min = costs[ey][ex][i];
+
+    for(int i=0; i<4; i++) {
+        if(costs[ey][ex][i] == min || (costs[ey][ex][i] == min+1000 && vec==i)){
+            ex2=ex + turns[(i+2)%4][0];
+            ey2=ey + turns[(i+2)%4][1];
+            resolve_path(ex2,ey2,i);
         }
     }
 }
-int backtrackDijkstra(int i, int j, int dir, int dij[][150]=dij1)
+
+int p2() 
 {
-    map<pair<int, int>, set<pair<int, int>>> paths;
-    dij[i][j]=0;
-    set<pair<pair<int, int>, pair<int, int>>> d;
-    d.insert({{0, dir}, {i, j}});
-    while (!d.empty()){
-        i=d.begin()->second.first;
-        j=d.begin()->second.second;
-        dir=d.begin()->first.second;
-        int tmp=d.begin()->first.first;
-        cout<<i<<" - "<<j<<endl;
-        d.erase(d.begin());
-        if (tmp>dij[i][j])continue;
-        for (int k=0; k<3; ++k){
-            int kk=(dir+4+sc[k])%4;
-            int pi=i+di[kk], pj=j+dj[kk];
-            if (inmat(pi, pj)){
-                if (v[pi][pj]!='#'){
-                    if (dij[pi][pj]>dij[i][j]+sum[k]){
-                        dij[pi][pj]=dij[i][j]+sum[k];
-                        d.insert({{dij[pi][pj], kk}, {pi, pj}});
-                        paths[{pi, pj}].clear();
-                        paths[{pi, pj}].insert({i, j});
-                    }
-                    if (dij[pi][pj]==dij[i][j]+sum[k]){
-                        paths[{pi, pj}].insert({i, j});
-                    }
-                }
-            }
-        }
-    }
-    set<pair<int, int>>sol;
-    queue<pair<int, int>>q;
-    for (auto it:paths[{ei, ej}]){
-        q.push(it);
-    }
-    while (!q.empty()){
-        cout<<i<<" - "<<j<<endl;
-        i=q.front().first;
-        j=q.front().second;
-        q.pop();
-        sol.insert({i, j});
-        for (auto it:paths[{i, j}]){
-            q.push(it);
+    int ex,ey;
+
+    while(fin>>tab[n]) n++;
+    m=strlen(tab[0]);
+    
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            for(int k=0;k<4;k++) costs[i][j][k]=MAX;
+            if(tab[i][j] == 'S'){ sx=j; sy=i; tab[i][j] = '.'; }
+            if(tab[i][j] == 'E'){ ex=j; ey=i; tab[i][j] = '.'; }
         }
     }
 
-    return sol.size()+1;
-}
+    count_path(sx,sy,2,0);
+    resolve_path(ex,ey,0);
 
-void p2(){
-    read();
-    cout<<"fuck\n";
-    int si, sj, sm;
-    find(si, sj, ei, ej);
-    //reset(dij1);
-    //fout<<dijkstra2(si, sj, 1);
-    //dijkstra(si, sj, 1);
-    //revdij(ei, ej);
-    //fout<<cc.size();    
-    reset(dij1);
-    fout<<backtrackDijkstra(si, sj, 1);
+    int cnt=0;
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            cnt+=b[i][j];
+
+    fout<<cnt;
+
+    return 0;
 }
 int main()
 {
