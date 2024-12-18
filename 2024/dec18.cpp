@@ -58,9 +58,34 @@ void p1(){
         fout<<endl;
     }
 }
+void reset(int mt[][100])
+{
+    for (int i=0; i<=n; ++i){
+        for (int j=0; j<=m; ++j){
+            mt[i][j]=0;
+        }
+    }
+}
+void p2()
+{
+    int x, y, cnt=0;
+    string s;
+    while (cin>>s){
+        s[s.find(',')]=' ';
+        stringstream sin(s);
+        sin>>x>>y;
+        grid[x][y]=true;
+        reset(mat);
+        lee(0, 0);
+        if (mat[n][m]==0){
+            fout<<x<<","<<y;
+            break;
+        }
+    }
+}
 int main()
 {
     freopen("date.in", "r", stdin);
-    p1();
-    //p2();
+    //p1();
+    p2();
 }
