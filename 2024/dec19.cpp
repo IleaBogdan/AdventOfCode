@@ -13,7 +13,7 @@ ifstream fin("date.in");
 ofstream fout("date.out");
 
 set<string> patr;
-map<string, int> dp;
+map<string, long long> dp;
 bool compose(string s)
 {
     if (s=="")return true;
@@ -53,11 +53,19 @@ void p1()
     }
     fout<<cnt;
 }
-int counter(string s)
+map<string, bool> bp;
+vector<string> v;
+long long counter(string s)
 {
-    if (s=="")return 1;
-    if (dp[s])return dp[s];
+    if (s==""){
+        for (auto it:v){
+            fout<<it<<endl;
+        }
+        return 1;
+    }
+    if (bp[s])return dp[s];
     dp[s]=0;
+    bp[s]=1;
     for (auto w:patr){
         int len=w.size();
         string start=s.substr(0, len), rest="";
@@ -65,7 +73,11 @@ int counter(string s)
             rest.push_back(s[i]);
         }
         if (start==w){
+            v.push_back(start);
+            v.push_back(rest);
             dp[s]+=counter(rest);
+            v.pop_back();
+            v.pop_back();
         }
     }
     return dp[s];
@@ -81,12 +93,12 @@ void p2()
         patr.insert(p);
     }
     fin.get();
-    int cnt=0, line=0;
+    long long cnt=0, line=0;
     while (getline(fin, s)){
-        cout<<++line<<endl;
-        dp.clear();
+        //cout<<++line<<endl;
+        fout<<s+": "<<endl;
         cnt+=counter(s);
-        //if (can(s))cout<<s<<endl;
+        cout<<counter(s)<<endl;
     }
     fout<<cnt;
 }
