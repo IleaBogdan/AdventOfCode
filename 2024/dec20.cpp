@@ -88,8 +88,53 @@ void p1()
     }
     fout<<num;
 }
+int value;
+int upoint(int i, int j, int k)
+{
+    int count=0;
+    int add_i=k, add_j=0;
+    while (add_i){
+        for (int pk=0; pk<4; ++pk){
+            int pi=i+add_i*di[pk], pj=j+add_j*dj[pk];
+            if (inMat(pi, pj)){
+                if (v[pi][pj]!='#' && mat[pi][pj]>mat[i][j]){
+                    //++count;
+                    count+=bool(mat[pi][pj]>mat[i][j]+50);
+                }
+            }
+        }
+        --add_i;
+        ++add_j;
+    }
+    return count;
+}
+int cheat(int i, int j)
+{
+    int count=0;
+    for (int k=2; k<=20; ++k){
+        count+=upoint(i, j, k);
+    }
+    return count;
+}
+void p2()
+{
+    int si, sj, ei, ej;
+    find(si, sj, ei, ej);
+    lee(si, sj);
+    int num=0;
+    value=mat[ei][ej];
+    for (int i=1; i<n-1; ++i){
+        for (int j=1; j<m-1; ++j){
+            if (v[i][j]!='#'){
+                num+=cheat(i, j);
+            }
+        }
+    }
+    fout<<num;
+}
 int main()
 {
     read();
-    p1();
+    //p1();
+    p2();
 }
