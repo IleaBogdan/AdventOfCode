@@ -1,4 +1,4 @@
-#include <iostream>
+2#include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -83,7 +83,8 @@ void p2()
     stringstream sin(s);
     string p;
     while (sin>>p){
-        p.pop_back();
+        if (p.back()==',')p.pop_back();
+        //cout<<p<<endl;
         patr.insert(p);
     }
     fin.get();
