@@ -76,8 +76,8 @@ void p1()
                         pi2=i+2*di[k], pj2=j+2*dj[k];
                     if (inMat(pi2, pj2) && v[pi1][pj1]=='#'){
                         if (v[pi2][pj2]!='#' && mat[pi2][pj2]>mat[i][j]){
-                            // contidie exemplu:
-                            // ++num;
+                            // contidie eiemplu:
+                            // ejnum;
                             // contindia de 100:
                             num+=bool(mat[pi2][pj2]>mat[i][j]+100);
                         }
@@ -88,33 +88,9 @@ void p1()
     }
     fout<<num;
 }
-int value;
-int upoint(int i, int j, int k)
+int mhdist(pair<int, int> x, pair<int, int> y)
 {
-    int count=0;
-    int add_i=k, add_j=0;
-    while (add_i){
-        for (int pk=0; pk<4; ++pk){
-            int pi=i+add_i*di[pk], pj=j+add_j*dj[pk];
-            if (inMat(pi, pj)){
-                if (v[pi][pj]!='#' && mat[pi][pj]>mat[i][j]){
-                    //++count;
-                    count+=bool(mat[pi][pj]>mat[i][j]+50);
-                }
-            }
-        }
-        --add_i;
-        ++add_j;
-    }
-    return count;
-}
-int cheat(int i, int j)
-{
-    int count=0;
-    for (int k=2; k<=20; ++k){
-        count+=upoint(i, j, k);
-    }
-    return count;
+    return abs(x.first-y.first)+abs(x.second-y.second);
 }
 void p2()
 {
@@ -122,11 +98,20 @@ void p2()
     find(si, sj, ei, ej);
     lee(si, sj);
     int num=0;
-    value=mat[ei][ej];
-    for (int i=1; i<n-1; ++i){
-        for (int j=1; j<m-1; ++j){
-            if (v[i][j]!='#'){
-                num+=cheat(i, j);
+    int x=si, y=sj;
+    while (x!=ei || y!=ej) {
+        for (int i=x-20; i<=x+20; ++i) {
+            for (int j=y-(20-abs(x-i)); j<=y+(20-abs(x-i)); ++j) {
+                if (inMat(i, j) && v[i][j]!='#' && mat[x][y]+abs(x-i)+abs(y-j)+100<=mat[i][j]) {
+                    ++num;
+                }
+            }
+        }
+        for (int p=0; p<4; ++p) {
+            if (mat[x+di[p]][y+dj[p]]==mat[x][y]+1) {
+                x+=di[p]; 
+                y+=dj[p];
+                break; 
             }
         }
     }
