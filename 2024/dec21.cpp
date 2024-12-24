@@ -12,29 +12,11 @@ ifstream fin("date.in");
 ofstream fout("date.out");
 #define endl '\n'
 
+
+
 int di[]={0, 1, 0, -1}, dj[]={1, 0, -1, 0};
 char dm[]=">v<^";
-vector<pair<char, char>> zip(string s1, string s2)
-{
-    vector<pair<char, char>> vc;
-    for (int i=0; i<min(s1.size(), s2.size()); ++i){
-        vc.push_back({s1[i], s2[i]});
-    }
-    return vc;
-}
-void carp(const vector<vector<string>>& v, 
-        vector<string>& r, 
-        string curr, int i)
-{
-    if (i==v.size()){
-        r.push_back(curr);
-        return;
-    }
-    for (auto it:v[i]){
-        carp(v, r, curr+it, i+1);
-    }
-}
-vector<string> solve(string type, vector<string> keypad)
+map<pair<char, char>, vector<string>> precompute(vector<string> keypad)
 {
     map<char, pair<int, int>> keys;
     for (int i=0; i<keypad.size(); ++i){
@@ -79,6 +61,32 @@ vector<string> solve(string type, vector<string> keypad)
             seq[{i, j}]=pos;
         }
     }
+    return seq;
+}
+vector<pair<char, char>> zip(string s1, string s2)
+{
+    vector<pair<char, char>> vc;
+    for (int i=0; i<min(s1.size(), s2.size()); ++i){
+        vc.push_back({s1[i], s2[i]});
+    }
+    return vc;
+}
+void carp(const vector<vector<string>>& v, 
+        vector<string>& r, 
+        string curr, int i)
+{
+    if (i==v.size()){
+        r.push_back(curr);
+        return;
+    }
+    for (auto it:v[i]){
+        carp(v, r, curr+it, i+1);
+    }
+}
+map<vector<string>, map<pair<char, char>, vector<string>>> seqHolder;
+vector<string> solve(string type, vector<string> keypad)
+{
+    map<pair<char, char>, vector<string>> seq=seqHolder[keypad];
     auto vc=zip("A"+type, type);
     vector<vector<string>> ops;
     for (auto it:vc){
@@ -145,7 +153,40 @@ void p1()
     }
     fout<<total;
 }
+void p2()
+{
+    seqHolder[door]=precompute(door);
+    seqHolder[robot]=precompute(robot);
+    string s;
+    long long total=0;
+    while (fin>>s){
+        vector<string> robot1=solve(s, door);
+        vector<string> possible_robot2;
+        vector<string> robot2, tmpRobot;
+        tmpRobot=robot1;
+        for (int rp=0; rp<25; ++rp){
+            possible_robot2.clear();
+            robot2.clear();
+            for (auto it:tmpRobot){
+                addback(possible_robot2, solve(it, robot));
+            }
+            robot2.push_back(possible_robot2.back());
+            possible_robot2.pop_back();
+            for (auto it:possible_robot2){
+                if (it.size()<robot2.back().size()){
+                    robot2.clear();
+                    robot2.push_back(it);
+                } else if (it.size()==robot2.back().size())robot2.push_back(it);
+            }
+            tmpRobot=robot2;
+        }
+        //cout<<tonums(s)<<endl;
+        total+=(tmpRobot[0].size())*(tonums(s));
+    }
+    fout<<total;
+}
 int main()
 {
-    p1();
+    //p1();
+    p2();
 }
