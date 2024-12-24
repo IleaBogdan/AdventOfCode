@@ -10,6 +10,7 @@ using namespace std;
 
 ifstream fin("date.in");
 ofstream fout("date.out");
+#define endl '\n'
 
 int di[]={0, 1, 0, -1}, dj[]={1, 0, -1, 0};
 char dm[]=">v<^";
@@ -95,33 +96,54 @@ void addback(vector<string> &v1, vector<string> v2)
         v1.push_back(it);
     }
 }
+ostream& afis(ostream& out, const vector<string>& v){
+    for (const auto & it : v){
+        out<<it<<endl;
+    }
+    out<<endl;
+    return out;
+}
+int tonums(string s)
+{
+    int num=0, i=0;
+    while (s[i]==0 && i<s.size()){
+        ++i;
+    }
+    while (isdigit(s[i]) && i<s.size()){
+        num*=10, num+=s[i]-'0';
+        ++i;
+    }
+    return num;
+}
 void p1()
 {
     string s;
     long long total=0;
     while (fin>>s){
-        vector<string> r1=solve(s, door);
-        vector<string> pos_r2;
-        for (auto it:r1){
-            //cout<<it<<endl;
-            addback(pos_r2, (it, robot));
-        }
-        int minLen=INT_MAX;
-        vector<string> r2;
-        for (auto it:pos_r2){
-            if (minLen>it.size()){
-                minLen=it.size();
-                r2.clear();
+        vector<string> robot1=solve(s, door);
+        vector<string> possible_robot2;
+        vector<string> robot2, tmpRobot;
+        tmpRobot=robot1;
+        for (int rp=0; rp<2; ++rp){
+            possible_robot2.clear();
+            robot2.clear();
+            for (auto it:tmpRobot){
+                addback(possible_robot2, solve(it, robot));
             }
-            if (minLen==it.size()){
-                r2.push_back(it);
+            robot2.push_back(possible_robot2.back());
+            possible_robot2.pop_back();
+            for (auto it:possible_robot2){
+                if (it.size()<robot2.back().size()){
+                    robot2.clear();
+                    robot2.push_back(it);
+                } else if (it.size()==robot2.back().size())robot2.push_back(it);
             }
+            tmpRobot=robot2;
         }
-        for (auto it:r2){
-            cout<<it<<endl;
-            //addback(pos_r2, (it, robot));
-        }
+        //cout<<tonums(s)<<endl;
+        total+=(tmpRobot[0].size())*(tonums(s));
     }
+    fout<<total;
 }
 int main()
 {
