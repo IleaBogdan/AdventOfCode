@@ -101,21 +101,21 @@ string makeWire(char c, int num)
 }
 bool verif_inter_xor(string w, int num)
 {
-    cout<<"vx "+w+" "<<num<<endl;
+    if (!c.count(w))return false;
     form f4=c[w];
     if (f4.oper!="XOR")return false;
     return f4.x==makeWire('x', num) && f4.y==makeWire('y', num);
 }
 bool verif_direct_carry(string w, int num)
 {
-    cout<<"vd "+w+" "<<num<<endl;
+    if (!c.count(w))return false;
     form f5=c[w];
     if (f5.oper!="AND")return false;
     return f5.x==makeWire('x', num) && f5.y==makeWire('y', num);
 }
 bool verif_recarry(string w, int num)
 {
-    cout<<"vr "+w+" "<<num<<endl;
+    if (!c.count(w))return false;
     form f5=c[w];
     if (f5.oper!="AND")return false;
     return verif_inter_xor(f5.x, num) && verif_carry_bit(f5.y, num) ||
@@ -123,7 +123,7 @@ bool verif_recarry(string w, int num)
 }
 bool verif_carry_bit(string w, int num)
 {
-    cout<<"vc "+w+" "<<num<<endl;
+    if (!c.count(w))return false;
     form f4=c[w];
     if (num==1)return f4.oper=="AND" && f4.x=="x00" && f4.y=="y00";
     if (f4.oper!="OR")return false;
@@ -132,7 +132,7 @@ bool verif_carry_bit(string w, int num)
 }
 bool verif_z(string w, int num)
 {
-    cout<<"vz "<<w+" "<<num<<endl;
+    if (!c.count(w))return false;
     form f3=c[w];
     if (f3.oper!="XOR")return false;
     if (num==0)return f3.x=="x00" && f3.y=="y00";
@@ -142,6 +142,14 @@ bool verif_z(string w, int num)
 bool verif(int num)
 {
     return verif_z(makeWire('z', num), num);
+}
+int progress()
+{
+    int i=0;
+    while (true){
+        if (!verif(i++))break;
+    }
+    return i;
 }
 void p2()
 {
@@ -175,11 +183,27 @@ void p2()
             c[r]=f1;
         }
     }
-    int i=0;
-    while (true){
-        if (!verif(i++))break;
+    for (int rp=0; rp<4; ++rp){
+        int b=progress();
+        //auto keepC=c;
+        bool ok=true;
+        for (auto x:c){
+            if (!ok)break;
+            for (auto y:c){
+                // swap
+                swap(c[x.first], c[y.first]);
+                if (progress()>b){
+                    ok=false;
+                    fout<<x.first<<" - "<<y.first<<endl;
+                    break;
+                }
+                // reswap
+                swap(c[x.first], c[y.first]);
+            }
+        }
+        cout<<"failed on: "<<b<<endl;
+
     }
-    cout<<"failed: "+makeWire('z', i-1);
 }
 int main()
 {
