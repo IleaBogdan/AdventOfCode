@@ -9,7 +9,7 @@ using namespace std;
 
 ifstream fin("date.in");
 ofstream fout("date.out");
-#define endl '\n'
+#define endl "\n"
 
 map<string, bool> k;
 struct form{
@@ -84,7 +84,105 @@ void p1()
     }
     fout<<rez;
 }
+
+bool verif_carry_bit(string w, int num);
+bool verif_inter_xor(string w, int num);
+bool verif_direct_carry(string w, int num);
+bool verif_recarry(string w, int num);
+string makeWire(char c, int num)
+{
+    string xorC{c};
+    xorC+="0";
+    if (num>9){
+        xorC.pop_back();
+    }
+    xorC+=to_string(num);
+    return xorC;
+}
+bool verif_inter_xor(string w, int num)
+{
+    cout<<"vx "+w+" "<<num<<endl;
+    form f4=c[w];
+    if (f4.oper!="XOR")return false;
+    return f4.x==makeWire('x', num) && f4.y==makeWire('y', num);
+}
+bool verif_direct_carry(string w, int num)
+{
+    cout<<"vd "+w+" "<<num<<endl;
+    form f5=c[w];
+    if (f5.oper!="AND")return false;
+    return f5.x==makeWire('x', num) && f5.y==makeWire('y', num);
+}
+bool verif_recarry(string w, int num)
+{
+    cout<<"vr "+w+" "<<num<<endl;
+    form f5=c[w];
+    if (f5.oper!="AND")return false;
+    return verif_inter_xor(f5.x, num) && verif_carry_bit(f5.y, num) ||
+            verif_inter_xor(f5.y, num) && verif_carry_bit(f5.x, num);
+}
+bool verif_carry_bit(string w, int num)
+{
+    cout<<"vc "+w+" "<<num<<endl;
+    form f4=c[w];
+    if (num==1)return f4.oper=="AND" && f4.x=="x00" && f4.y=="y00";
+    if (f4.oper!="OR")return false;
+    return verif_direct_carry(f4.x, num-1) && verif_recarry(f4.y, num-1) ||
+            verif_direct_carry(f4.y, num-1) && verif_recarry(f4.x, num-1);
+}
+bool verif_z(string w, int num)
+{
+    cout<<"vz "<<w+" "<<num<<endl;
+    form f3=c[w];
+    if (f3.oper!="XOR")return false;
+    if (num==0)return f3.x=="x00" && f3.y=="y00";
+    return verif_inter_xor(f3.x, num) && verif_carry_bit(f3.y, num) ||
+            verif_inter_xor(f3.y, num) && verif_carry_bit(f3.x, num);
+}
+bool verif(int num)
+{
+    return verif_z(makeWire('z', num), num);
+}
+void p2()
+{
+    //read();
+    //new read:
+    string s;
+    while (getline(fin, s)){
+        if (s=="")break;
+    }
+    while (getline(fin, s)){
+        for (size_t i=0; i<s.size(); ++i){
+            form f1;
+            string r;
+            int alcat=0;
+            for (int i=0; i<s.size(); ++i){
+                if (s[i]==' '){
+                    if (s[i+1]=='-')i+=3;
+                    ++alcat;
+                    continue;
+                }
+                if (alcat==0){
+                    f1.x.push_back(s[i]);
+                } else if (alcat==1){
+                    f1.oper.push_back(s[i]);
+                } else if (alcat==2){
+                    f1.y.push_back(s[i]);
+                } else {
+                    r.push_back(s[i]);
+                }
+            }
+            c[r]=f1;
+        }
+    }
+    int i=0;
+    while (true){
+        if (!verif(i++))break;
+    }
+    cout<<"failed: "+makeWire('z', i-1);
+}
 int main()
 {
-    p1();
+    //p1();
+    p2();
 }
