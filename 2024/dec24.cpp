@@ -85,69 +85,73 @@ void p1()
     fout<<rez;
 }
 
-bool verif_carry_bit(string w, int num);
-bool verif_inter_xor(string w, int num);
-bool verif_direct_carry(string w, int num);
-bool verif_recarry(string w, int num);
-string makeWire(char c, int num)
+bool verify_itermediate_xor(string w, int num);
+bool verify_carry_bit(string w, int num);
+bool verify_direct_carry(string w, int num);
+bool verify_recarry(string w, int num);
+void printer(string s, string w, int num)
 {
-    string xorC{c};
-    xorC+="0";
-    if (num>9){
-        xorC.pop_back();
+    return;
+    printf("%s %s %d\n", s.c_str(), w.c_str(), num);
+}
+string mkwire(char c, int num)
+{
+    string s; s.push_back(c);
+    if (num<10)s.push_back('0');
+    return s+to_string(num);
+}
+bool verify_itermediate_xor(string w, int num)
+{
+    printer("vx", w, num);
+    string op=c[w].oper, x=c[w].x, y=c[w].y;
+    if (op!="XOR")return false;
+    return (x==mkwire('x', num) && y==mkwire('y', num)) || (x==mkwire('y', num) && y==mkwire('x', num));
+}
+bool verify_carry_bit(string w, int num)
+{
+    printer("vc", w, num);
+    string op=c[w].oper, x=c[w].x, y=c[w].y;
+    if (num==1){
+        if (op=="AND")return false;
+        return (x=="x00" && y=="y00") || (x=="y00" && y=="x00");
     }
-    xorC+=to_string(num);
-    return xorC;
+    if (op!="OR")return false;
+    return (verify_direct_carry(x, num-1) && verify_recarry(y, num-1)) || 
+            (verify_direct_carry(y, num-1) && verify_recarry(x, num-1));
 }
-bool verif_inter_xor(string w, int num)
+bool verify_direct_carry(string w, int num)
 {
-    if (!c.count(w))return false;
-    form f4=c[w];
-    if (f4.oper!="XOR")return false;
-    return f4.x==makeWire('x', num) && f4.y==makeWire('y', num);
+    printer("vd", w, num);
+    string op=c[w].oper, x=c[w].x, y=c[w].y;
+    if (op!="AND")return false;
+    return (x==mkwire('x', num) && y==mkwire('y', num)) || (x==mkwire('y', num) && y==mkwire('x', num));
 }
-bool verif_direct_carry(string w, int num)
+bool verify_recarry(string w, int num)
 {
-    if (!c.count(w))return false;
-    form f5=c[w];
-    if (f5.oper!="AND")return false;
-    return f5.x==makeWire('x', num) && f5.y==makeWire('y', num);
+    printer("vr", w, num);
+    string op=c[w].oper, x=c[w].x, y=c[w].y;
+    if (op!="AND")return false;
+    return (verify_itermediate_xor(x, num) && verify_carry_bit(y, num)) || 
+            (verify_itermediate_xor(y, num) && verify_carry_bit(x, num)); 
 }
-bool verif_recarry(string w, int num)
+bool verify_z(string w, int num)
 {
-    if (!c.count(w))return false;
-    form f5=c[w];
-    if (f5.oper!="AND")return false;
-    return verif_inter_xor(f5.x, num) && verif_carry_bit(f5.y, num) ||
-            verif_inter_xor(f5.y, num) && verif_carry_bit(f5.x, num);
+    printer("vz", w, num);
+    string op=c[w].oper, x=c[w].x, y=c[w].y;
+    if (op!="XOR")return false;
+    if (num==0)return (x=="x00" && y=="y00") || (x=="y00" && y=="x00");
+    return (verify_itermediate_xor(x, num) && verify_carry_bit(y, num)) || 
+            (verify_itermediate_xor(y, num) && verify_carry_bit(x, num));
 }
-bool verif_carry_bit(string w, int num)
+bool verify(int num)
 {
-    if (!c.count(w))return false;
-    form f4=c[w];
-    if (num==1)return f4.oper=="AND" && f4.x=="x00" && f4.y=="y00";
-    if (f4.oper!="OR")return false;
-    return verif_direct_carry(f4.x, num-1) && verif_recarry(f4.y, num-1) ||
-            verif_direct_carry(f4.y, num-1) && verif_recarry(f4.x, num-1);
-}
-bool verif_z(string w, int num)
-{
-    if (!c.count(w))return false;
-    form f3=c[w];
-    if (f3.oper!="XOR")return false;
-    if (num==0)return f3.x=="x00" && f3.y=="y00";
-    return verif_inter_xor(f3.x, num) && verif_carry_bit(f3.y, num) ||
-            verif_inter_xor(f3.y, num) && verif_carry_bit(f3.x, num);
-}
-bool verif(int num)
-{
-    return verif_z(makeWire('z', num), num);
+    return verify_z(mkwire('z', num), num);
 }
 int progress()
 {
-    int i=0;
+    int i=0; 
     while (true){
-        if (!verif(i++))break;
+        if (!verify(i++))break;
     }
     return i;
 }
@@ -183,26 +187,24 @@ void p2()
             c[r]=f1;
         }
     }
-    for (int rp=0; rp<4; ++rp){
+    for (int _=0; _<4; ++_){
         int b=progress();
-        //auto keepC=c;
-        bool ok=true;
-        for (auto x:c){
-            if (!ok)break;
-            for (auto y:c){
-                // swap
-                swap(c[x.first], c[y.first]);
-                if (progress()>b){
-                    ok=false;
-                    fout<<x.first<<" - "<<y.first<<endl;
+        bool ok=false;
+        auto mp=c;
+        cout<<b<<endl<<endl;
+        for (auto ix:mp){
+            if (ok)break;
+            for (auto jy:mp){
+                swap(c[ix.first], c[jy.first]);
+                cout<<progress()<<endl;
+                if (b<progress()){
+                    ok=true;
+                    fout<<ix.first<<" "<<jy.first<<" ";
                     break;
                 }
-                // reswap
-                swap(c[x.first], c[y.first]);
+                swap(c[ix.first], c[jy.first]);
             }
         }
-        cout<<"failed on: "<<b<<endl;
-
     }
 }
 int main()
