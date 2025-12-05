@@ -9,4 +9,5 @@
 #include<math.h>
 #include<cmath>
 #include<algorithm>
+#include<bitset>
 using namespace std;
