@@ -98,9 +98,52 @@ void p1(void){
     }
     cout<<prod; // sol: 54600
 }
+bool check(int n){
+    root[1]=get_root(1);
+    for(int i=2;i<=n;++i){
+        if(get_root(i)!=root[1])return false;
+    }
+    return true;
+}
+void p2(void){
+    coord c;
+    v.push_back({0,0,0});
+    while(cin>>c){
+        v.push_back(c);
+    }
+    int n=v.size()-1;
+    for(int i=1;i<=n;++i){
+        for(int j=i+1;j<=n;++j){
+            if(i==j)continue;
+            pq.push_back({i,j});
+        }
+    }
+    root.resize(n+1);
+    rang.resize(n+1);
+    for(int i=1;i<=n;++i){
+        root[i]=i;
+        rang[i]=0;
+    }
+    sort(pq.begin(),pq.end(),[](pair<int,int>p1,pair<int,int>p2){
+        return dist(p1.first,p1.second)<dist(p2.first,p2.second);
+    });
+    for(int i=0;i<pq.size();++i){
+        int x=pq[i].first,y=pq[i].second;
+        if(joined(x,y))continue;
+        // cerr<<v[x]<<" -- "<<v[y]<<endl;
+        join(x,y);
+        if(check(n)){
+            // cout<<v[x]<<" - "<<v[y]<<endl;
+            cout<<v[x].x*v[y].x;
+            return;
+        }
+    }
+    // sol: 107256172
+}
 signed main(...){
     freopen("date.in","r",stdin);
     freopen("date.out","w",stdout);
-    p1();
+    //p1();
+    p2();
     return 0;
 }
