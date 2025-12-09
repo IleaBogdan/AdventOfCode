@@ -15,3 +15,9 @@
 #include<unordered_map>
 #include<unordered_set>
 using namespace std;
+
+static inline void open_file(void){
+    freopen("date.in","r",stdin);
+    freopen("date.out","w",stdout);
+    return;
+}
